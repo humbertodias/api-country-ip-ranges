@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Set;
-import java.util.Timer;
 
 public class DownloadHelper {
 
