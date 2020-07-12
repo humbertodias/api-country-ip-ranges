@@ -5,32 +5,31 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class DownloadHelper {
 
-    private static File downloadDir = new File("download");
+    private static File downloadDir = new File(System.getProperty("user.home"), "download");
 
     private static final int BUFFER_SIZE = 1024;
 
-    public static String[] files(){
+    public static String[] files() {
         return downloadDir.list();
     }
 
-    public static File[] listFiles(){
+    public static File[] listFiles() {
         var list = downloadDir.listFiles();
         return list != null ? list : new File[0];
     }
 
-    public static void downloadFilesAsync(Set<String> filesURL){
-        CompletableFuture.runAsync( ()-> downloadFiles(filesURL));
+    public static void downloadFilesAsync(Set<String> filesURL) {
+        CompletableFuture.runAsync(() -> downloadFiles(filesURL));
     }
 
-    public static void downloadFiles(Set<String> filesURL)  {
+    public static void downloadFiles(Set<String> filesURL) {
         downloadDir.mkdirs();
-        for(var fileUrl : filesURL){
+        for (var fileUrl : filesURL) {
             try {
                 var file = downloadFile(fileUrl);
                 System.out.printf("[OK] %s - %s bytes\n", file.getName(), file.length());
