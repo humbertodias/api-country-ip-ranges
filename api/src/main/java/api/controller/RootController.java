@@ -21,6 +21,11 @@ public class RootController {
     @Inject
     CountryIpService countryIpService;
 
+    @PostConstruct
+    public void setup(){
+        countryIpService.loadMaps();
+    }
+
     @GET
     @Path("manifest")
     @Produces(MediaType.TEXT_PLAIN)
@@ -53,9 +58,5 @@ public class RootController {
         return countryIpService.getIp(country);
     }
 
-    @PostConstruct
-    void setup(){
-        countryIpService.loadMaps();
-    }
 
 }
