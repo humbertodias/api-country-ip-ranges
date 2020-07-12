@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class DownloadHelper {
 
-    private static File downloadDir = new File(System.getProperty("user.home"), "download");
+    private static File downloadDir = new File(System.getProperty("user.home"), "cidr");
 
     private static final int BUFFER_SIZE = 1024;
 

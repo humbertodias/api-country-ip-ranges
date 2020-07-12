@@ -34,7 +34,7 @@ public class RootController {
     @GET
     @Path("myip")
     public String myip(@Context HttpServletRequest request) {
-        return request.getRemoteAddr();
+        return getClientIp(request);
     }
 
     @GET
@@ -66,6 +66,19 @@ public class RootController {
     @Produces(MediaType.APPLICATION_JSON)
     public Optional<AbstractMap.SimpleEntry> ip(@PathParam("country") String country) {
         return countryIpService.getIp(country);
+    }
+
+    private static String getClientIp(HttpServletRequest request) {
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
     }
 
 }
