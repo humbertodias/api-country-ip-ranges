@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Path("/")
 @Singleton
@@ -21,11 +22,17 @@ public class RootController {
     @Inject
     CountryIpService countryIpService;
 
+    @PostConstruct
+    public void setup(){
+        CompletableFuture.runAsync( ()-> countryIpService.loadMaps());
+    }
+
     @GET
     @Path("load")
     public void load(){
         countryIpService.loadMaps();
     }
+
 
     @GET
     @Path("manifest")

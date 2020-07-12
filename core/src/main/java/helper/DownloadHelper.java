@@ -17,7 +17,8 @@ public class DownloadHelper {
     }
 
     public static File[] listFiles(){
-        return downloadDir.listFiles();
+        var list = downloadDir.listFiles();
+        return list != null ? list : new File[0];
     }
 
     public static void downloadFiles(String ... filesURL)  {
