@@ -1,6 +1,8 @@
 package api.controller;
 
+import api.helper.FileStreamingOutput;
 import api.helper.IPHelper;
+import helper.DownloadHelper;
 import service.CountryIpService;
 
 import javax.inject.Inject;
@@ -13,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -91,6 +94,17 @@ public class IPController {
     @Produces(MediaType.APPLICATION_JSON)
     public Set<String> countries() {
         return countryIpService.countries();
+    }
+
+    @GET
+    @Path("zip")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response zip() throws Exception {
+        var file = DownloadHelper.zip();
+        var stream = new FileStreamingOutput(file);
+        return Response.ok(stream, MediaType.APPLICATION_OCTET_STREAM)
+                .header("content-length", file.length())
+                .header("content-disposition", String.format("attachment; filename=%s",file.getName())).build();
     }
 
 }

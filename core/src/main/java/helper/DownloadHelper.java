@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.Set;
+import java.util.Timer;
 
 public class DownloadHelper {
 
@@ -48,6 +50,17 @@ public class DownloadHelper {
         }
         return file;
 
+    }
+
+    private static File zipTemoraryFile(){
+        var zipTmpFileName = String.format("%s-%s.zip", downloadDir.getName(), Instant.now().toEpochMilli() );
+        return new File(System.getProperty("java.io.tmpdir"), zipTmpFileName);
+    }
+
+    public static File zip() throws Exception {
+        var zip = zipTemoraryFile();
+        ZipHelper.zipFolder(downloadDir.toPath(), zip.toPath());
+        return zip;
     }
 
 }
