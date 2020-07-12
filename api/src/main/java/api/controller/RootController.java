@@ -24,7 +24,7 @@ public class RootController {
 
     @PostConstruct
     public void setup(){
-        CompletableFuture.runAsync( ()-> countryIpService.loadMaps());
+        CompletableFuture.runAsync( ()-> countryIpService.downloadAll());
     }
 
     @GET
