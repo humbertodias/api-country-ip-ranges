@@ -5,6 +5,7 @@ import com.github.jgonian.ipmath.Ipv4Range;
 import com.github.jgonian.ipmath.Ipv6;
 import com.github.jgonian.ipmath.Ipv6Range;
 import helper.DownloadHelper;
+import org.jsoup.Jsoup;
 
 import javax.inject.Singleton;
 import java.io.File;
@@ -18,19 +19,9 @@ public class CountryIpService {
 
     Pattern IPV4 = Pattern.compile("(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])", Pattern.CASE_INSENSITIVE);
 
-    String ipCountryURL = "http://www.iwik.org/ipcountry";
-    String[] countries = {"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ER", "ES", "ET", "EU", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GT", "GU", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW"};
-
+    String ipCountryURL = "http://www.iwik.org/ipcountry/";
     Map<String, Set<Ipv4Range>> rangeIpv4 = new TreeMap<>();
     Map<String, Set<Ipv6Range>> rangeIpv6 = new TreeMap<>();
-
-    public String urlV4(String countryCode) {
-        return String.format("%s/%s.cidr", ipCountryURL, countryCode);
-    }
-
-    public String urlV6(String countryCode) {
-        return String.format("%s/%s.ipv6", ipCountryURL, countryCode);
-    }
 
     private static boolean containsV6(Set<Ipv6Range> range, Ipv6 ip) {
         return range.stream().anyMatch(s -> s.contains(ip));
@@ -56,18 +47,18 @@ public class CountryIpService {
         if (rangeIpv4.containsKey(countryKey)) {
             return rangeIpv4.get(countryKey)
                     .stream().findAny()
-                    .map(r -> r.start()).map(ip -> new AbstractMap.SimpleEntry<>(countryKey, ip.toString()) );
+                    .map(r -> r.start()).map(ip -> new AbstractMap.SimpleEntry<>(countryKey, ip.toString()));
         }
         if (rangeIpv6.containsKey(countryKey)) {
             return rangeIpv6.get(countryKey)
                     .stream().findAny()
-                    .map(r -> r.start()).map(ip -> new AbstractMap.SimpleEntry<>(countryKey, ip.toString()) );
+                    .map(r -> r.start()).map(ip -> new AbstractMap.SimpleEntry<>(countryKey, ip.toString()));
         }
         return Optional.empty();
     }
 
-    public void downloadStartUp(){
-        if(DownloadHelper.listFiles().length == 0){
+    public void downloadStartUp() {
+        if (DownloadHelper.listFiles().length == 0) {
             downloadAllAndLoad();
         } else {
             System.out.println("Already downloaded");
@@ -76,20 +67,15 @@ public class CountryIpService {
     }
 
     public void downloadAllAndLoad() {
-        CompletableFuture.runAsync( ()-> this.downloadAllCountries());
+        CompletableFuture.runAsync(() -> this.downloadAllCountries());
     }
 
-    private void downloadAllCountries(){
-        var urls = new HashSet<String>();
-        for (var country : countries) {
-            urls.add(urlV4(country));
-            urls.add(urlV6(country));
-        }
-        DownloadHelper.downloadFiles(urls);
+    private void downloadAllCountries() {
+        DownloadHelper.downloadFiles(urls());
         loadMaps();
     }
 
-    public String[] files(){
+    public String[] files() {
         return DownloadHelper.files();
     }
 
@@ -134,8 +120,41 @@ public class CountryIpService {
         }
     }
 
-    private String noExtension(String fileName){
+    private String noExtension(String fileName) {
         return fileName.substring(0, fileName.lastIndexOf('.'));
+    }
+
+    public Set<String> urls() {
+        var hrefs = new TreeSet<String>();
+        try {
+            var doc = Jsoup.connect(ipCountryURL).get();
+            var elements = doc.select("a[href$='.cidr'], a[href$='.ipv6']");
+            elements.stream()
+                    .map(e -> e.attr("href"))
+                    .distinct()
+                    .forEach(country -> hrefs.add(ipCountryURL + country));
+            return hrefs;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return hrefs;
+        }
+    }
+
+    public Set<String> countries() {
+        var hrefs = new TreeSet<String>();
+        try {
+            var doc = Jsoup.connect(ipCountryURL).get();
+            var elements = doc.select("a[href$='.cidr'], a[href$='.ipv6']");
+            elements.stream()
+                    .map(e -> e.attr("href"))
+                    .map(this::noExtension)
+                    .distinct()
+                    .forEach(country -> hrefs.add(country));
+            return hrefs;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return hrefs;
+        }
     }
 
 }

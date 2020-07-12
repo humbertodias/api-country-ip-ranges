@@ -44,3 +44,5 @@ http://localhost:8080/api/openapi-ui
 * [iplocation](https://iplocation.com)
 
 * [ip2location](https://www.ip2location.com/demo)
+
+* [CSS Selectors](https://www.w3schools.com/cssref/css_selectors.asp)

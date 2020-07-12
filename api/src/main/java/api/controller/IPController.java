@@ -5,8 +5,7 @@ import service.CountryIpService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.json.Json;
-import javax.json.JsonObject;
+import javax.json.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -16,8 +15,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.Optional;
+import java.util.*;
 
 @Path("/")
 @Singleton
@@ -59,7 +57,7 @@ public class IPController {
 
     @GET
     @Path("files")
-    public String [] files() {
+    public String[] files() {
         return countryIpService.files();
     }
 
@@ -86,6 +84,13 @@ public class IPController {
     @Produces(MediaType.APPLICATION_JSON)
     public Optional<AbstractMap.SimpleEntry> ip(@PathParam("country") String country) {
         return countryIpService.getIp(country);
+    }
+
+    @GET
+    @Path("countries")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Set<String> countries() {
+        return countryIpService.countries();
     }
 
 }
