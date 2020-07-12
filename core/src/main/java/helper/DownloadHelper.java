@@ -22,6 +22,7 @@ public class DownloadHelper {
     }
 
     public static void downloadFiles(String ... filesURL)  {
+        downloadDir.mkdirs();
         for(var fileUrl : filesURL){
             try {
                 var file = downloadFile(fileUrl);

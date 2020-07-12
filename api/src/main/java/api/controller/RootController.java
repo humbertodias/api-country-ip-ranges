@@ -33,7 +33,6 @@ public class RootController {
         countryIpService.loadMaps();
     }
 
-
     @GET
     @Path("manifest")
     @Produces(MediaType.TEXT_PLAIN)
