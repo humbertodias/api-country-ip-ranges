@@ -1,0 +1,1 @@
+web: java -jar api/build/libs/ROOT-microbundle.jar --port $PORT --autoBindSsl --nocluster --nohostaware
