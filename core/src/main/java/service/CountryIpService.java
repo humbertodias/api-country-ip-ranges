@@ -76,7 +76,7 @@ public class CountryIpService {
     }
 
     public void downloadAllAndLoad() {
-        CompletableFuture.runAsync( ()-> this.downloadAllCountries()).thenAccept(aVoid -> loadMaps());
+        CompletableFuture.runAsync( ()-> this.downloadAllCountries());
     }
 
     private void downloadAllCountries(){
@@ -85,17 +85,19 @@ public class CountryIpService {
             urls.add(urlV4(country));
             urls.add(urlV6(country));
         }
-        DownloadHelper.downloadFilesAsync(urls);
+        DownloadHelper.downloadFiles(urls);
+        loadMaps();
     }
 
     public String[] files(){
         return DownloadHelper.files();
     }
 
-    public void loadMaps() {
+    public int loadMaps() {
         var files = Arrays.asList(DownloadHelper.listFiles());
         files.stream().filter(f -> f.getName().endsWith("cidr")).forEach(this::parseFileV4);
         files.stream().filter(f -> f.getName().endsWith("ipv6")).forEach(this::parseFileV6);
+        return rangeIpv4.size() + rangeIpv6.size();
     }
 
     public void parseFileV4(File file) {

@@ -42,6 +42,12 @@ public class RootController {
     }
 
     @GET
+    @Path("load")
+    public int load() {
+        return countryIpService.loadMaps();
+    }
+
+    @GET
     @Path("country/{ip}")
     public Optional<String> country(@PathParam("ip") String ip) {
         return countryIpService.getCountry(ip);

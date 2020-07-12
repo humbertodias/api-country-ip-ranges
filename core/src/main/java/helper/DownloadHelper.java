@@ -23,10 +23,6 @@ public class DownloadHelper {
         return list != null ? list : new File[0];
     }
 
-    public static void downloadFilesAsync(Set<String> filesURL) {
-        CompletableFuture.runAsync(() -> downloadFiles(filesURL));
-    }
-
     public static void downloadFiles(Set<String> filesURL) {
         downloadDir.mkdirs();
         for (var fileUrl : filesURL) {
