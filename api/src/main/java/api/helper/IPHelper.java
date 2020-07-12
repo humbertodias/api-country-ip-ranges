@@ -94,5 +94,9 @@ public class IPHelper {
         return request.getHeader("User-Agent");
     }
 
+    public static String getRemoteUser(HttpServletRequest request) {
+        var remoteUser = request.getRemoteUser();
+        return remoteUser == null ? "" : remoteUser;
+    }
 
 }

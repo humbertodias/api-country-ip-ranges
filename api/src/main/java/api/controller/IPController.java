@@ -38,15 +38,23 @@ public class IPController {
     @Path("myip")
     @Produces(MediaType.APPLICATION_JSON)
     public JsonObject myip(@Context HttpServletRequest request) {
-        var builder = Json.createObjectBuilder();
-        builder.add("remoteIp", IPHelper.getClientIpAddr(request));
-        builder.add("remoteHost", request.getRemoteHost());
-        builder.add("remotePort", request.getRemotePort());
-        builder.add("remoteUser", "" + request.getRemoteUser());
-        builder.add("userAgent", IPHelper.getUserAgent(request));
-        builder.add("clientOS", IPHelper.getClientOS(request));
-        builder.add("clientBrowser", IPHelper.getClientBrowser(request));
-        return builder.build();
+
+        var remote = Json.createObjectBuilder();
+        remote.add("ip", IPHelper.getClientIpAddr(request));
+        remote.add("host", request.getRemoteHost());
+        remote.add("port", request.getRemotePort());
+        remote.add("user", IPHelper.getRemoteUser(request));
+
+        var client = Json.createObjectBuilder();
+        client.add("agent", IPHelper.getUserAgent(request));
+        client.add("os", IPHelper.getClientOS(request));
+        client.add("browser", IPHelper.getClientBrowser(request));
+
+        var root = Json.createObjectBuilder();
+        root.add("remote", remote);
+        root.add("client", client);
+
+        return root.build();
     }
 
     @GET
