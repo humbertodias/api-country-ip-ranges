@@ -8,12 +8,22 @@ import java.net.URL;
 
 public class DownloadHelper {
 
+    private static File downloadDir = new File("download");
+
     private static final int BUFFER_SIZE = 1024;
 
-    public static void downloadFiles(File saveDir, String ... filesURL)  {
+    public static String[] files(){
+        return downloadDir.list();
+    }
+
+    public static File[] listFiles(){
+        return downloadDir.listFiles();
+    }
+
+    public static void downloadFiles(String ... filesURL)  {
         for(var fileUrl : filesURL){
             try {
-                var file = downloadFile(fileUrl, saveDir);
+                var file = downloadFile(fileUrl);
                 System.out.printf("[OK] %s - %s bytes\n", file.getName(), file.length());
             } catch (IOException e) {
                 System.out.printf("[ERROR] %s\n", e.getLocalizedMessage());
@@ -21,10 +31,10 @@ public class DownloadHelper {
         }
     }
 
-    public static File downloadFile(String fileURL, File saveDir) throws IOException {
+    public static File downloadFile(String fileURL) throws IOException {
 
         var fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1);
-        var file = new File(saveDir, fileName);
+        var file = new File(downloadDir, fileName);
 
         var in = new BufferedInputStream(new URL(fileURL).openStream());
         var fileOutputStream = new FileOutputStream(file);

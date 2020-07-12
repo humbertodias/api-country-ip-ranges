@@ -20,14 +20,8 @@ public class CountryIpService {
     String ipCountryURL = "http://www.iwik.org/ipcountry";
     String[] countries = {"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "ER", "ES", "ET", "EU", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GT", "GU", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SI", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW"};
 
-    File downloadDir = new File("download");
-
     Map<String, Set<Ipv4Range>> rangeIpv4 = new TreeMap<>();
     Map<String, Set<Ipv6Range>> rangeIpv6 = new TreeMap<>();
-
-    public CountryIpService() {
-        downloadDir.mkdirs();
-    }
 
     public String urlV4(String countryCode) {
         return String.format("%s/%s.cidr", ipCountryURL, countryCode);
@@ -45,6 +39,7 @@ public class CountryIpService {
         return range.stream().anyMatch(s -> s.contains(ip));
     }
 
+
     public Optional<String> getCountry(String ip) {
         if (IPV4.matcher(ip).matches()) {
             var ipv4 = Ipv4.of(ip);
@@ -56,24 +51,34 @@ public class CountryIpService {
 
     }
 
-    public Optional<String> getIp(String country) {
-        return rangeIpv4.get(country.toUpperCase())
-                .stream().findAny()
-                .map(r-> r.start()).map(ip -> country + "=" + ip.toString());
+    public Optional<Object> getIp(String country) {
+        var countryKey = country.toUpperCase();
+        if (rangeIpv4.containsKey(countryKey)) {
+            return rangeIpv4.getOrDefault(country.toUpperCase(), new HashSet<>())
+                    .stream().findAny()
+                    .map(r -> r.start()).map(ip -> new HashMap<>().put(countryKey ,ip.toString()) );
+        }
+        if (rangeIpv6.containsKey(countryKey)) {
+            return rangeIpv6.getOrDefault(country.toUpperCase(), new HashSet<>())
+                    .stream().findAny()
+                    .map(r -> r.start()).map(ip ->new HashMap<>().put(countryKey ,ip.toString()));
+        }
+        return Optional.empty();
     }
 
     public void downloadAll() {
         for (var country : countries) {
-            DownloadHelper.downloadFiles(downloadDir, urlV4(country), urlV6(country));
+            DownloadHelper.downloadFiles(urlV4(country), urlV6(country));
         }
+        loadMaps();
     }
 
-    public List<File> files(){
-        return Arrays.asList(downloadDir.listFiles());
+    public String[] files(){
+        return DownloadHelper.files();
     }
 
-    public void parseFiles() {
-        var files = Arrays.asList(downloadDir.listFiles());
+    public void loadMaps() {
+        var files = Arrays.asList(DownloadHelper.listFiles());
         files.stream().filter(f -> f.getName().endsWith("cidr")).forEach(this::parseFileV4);
         files.stream().filter(f -> f.getName().endsWith("ipv6")).forEach(this::parseFileV6);
     }
@@ -89,7 +94,7 @@ public class CountryIpService {
                 } catch (Exception ignore) {
                 }
             }
-            var country = file.getName().substring(0, file.getName().lastIndexOf('.'));
+            var country = noExtension(file.getName());
             rangeIpv4.put(country, rangesByCountry);
         } catch (FileNotFoundException ignore) {
         }
@@ -106,12 +111,14 @@ public class CountryIpService {
                 } catch (Exception ignore) {
                 }
             }
-            var country = file.getName().substring(0, file.getName().lastIndexOf('.'));
+            var country = noExtension(file.getName());
             rangeIpv6.put(country, rangesByCountry);
         } catch (FileNotFoundException ignore) {
         }
     }
 
-
+    private String noExtension(String fileName){
+        return fileName.substring(0, fileName.lastIndexOf('.'));
+    }
 
 }

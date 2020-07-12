@@ -5,6 +5,22 @@
  * Learn how to create Gradle builds at https://guides.gradle.org/creating-new-gradle-builds
  */
 
+
+
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+group = 'com.api.countryip'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '11'
+
+
 // Heroku
 task stage(dependsOn: [':api:microBundle', 'clean'])
 build.mustRunAfter clean

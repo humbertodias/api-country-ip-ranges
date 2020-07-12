@@ -8,11 +8,9 @@ repositories {
 }
 
 dependencies {
-    compile 'org.jsoup:jsoup:1.13.1'
+    //compile 'org.jsoup:jsoup:1.13.1'
     compile 'javax.inject:javax.inject:1'
-
     compile 'com.github.jgonian:commons-ip-math:1.32'
-    compile 'com.github.seancfoley:ipaddress:5.3.1'
 }
 
 group = 'com.country'

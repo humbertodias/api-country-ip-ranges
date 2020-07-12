@@ -42,13 +42,14 @@ public class MainCLI {
 
         if (download) {
             service.downloadAll();
+        } else {
+            service.loadMaps();
         }
-
-        service.parseFiles();
 
         if (ip != null) {
             out.println(service.getCountry(ip));
         }
+
 
         if (countries != null) {
             countries.forEach(country -> out.println(service.getIp(country)));
