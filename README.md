@@ -42,3 +42,5 @@ http://localhost:8080/api/openapi-ui
 * [myip.com](https://www.myip.com)
 
 * [iplocation](https://iplocation.com)
+
+* [ip2location](https://www.ip2location.com/demo)

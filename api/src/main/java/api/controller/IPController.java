@@ -1,9 +1,12 @@
 package api.controller;
 
+import api.helper.IPHelper;
 import service.CountryIpService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,7 +21,7 @@ import java.util.Optional;
 
 @Path("/")
 @Singleton
-public class RootController {
+public class IPController {
 
     @Inject
     CountryIpService countryIpService;
@@ -33,8 +36,17 @@ public class RootController {
 
     @GET
     @Path("myip")
-    public String myip(@Context HttpServletRequest request) {
-        return getClientIp(request);
+    @Produces(MediaType.APPLICATION_JSON)
+    public JsonObject myip(@Context HttpServletRequest request) {
+        var builder = Json.createObjectBuilder();
+        builder.add("remoteIp", IPHelper.getClientIpAddr(request));
+        builder.add("remoteHost", request.getRemoteHost());
+        builder.add("remotePort", request.getRemotePort());
+        builder.add("remoteUser", "" + request.getRemoteUser());
+        builder.add("userAgent", IPHelper.getUserAgent(request));
+        builder.add("clientOS", IPHelper.getClientOS(request));
+        builder.add("clientBrowser", IPHelper.getClientBrowser(request));
+        return builder.build();
     }
 
     @GET
@@ -66,19 +78,6 @@ public class RootController {
     @Produces(MediaType.APPLICATION_JSON)
     public Optional<AbstractMap.SimpleEntry> ip(@PathParam("country") String country) {
         return countryIpService.getIp(country);
-    }
-
-    private static String getClientIp(HttpServletRequest request) {
-        String remoteAddr = "";
-
-        if (request != null) {
-            remoteAddr = request.getHeader("X-FORWARDED-FOR");
-            if (remoteAddr == null || "".equals(remoteAddr)) {
-                remoteAddr = request.getRemoteAddr();
-            }
-        }
-
-        return remoteAddr;
     }
 
 }
