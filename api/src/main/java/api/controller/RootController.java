@@ -2,7 +2,6 @@ package api.controller;
 
 import service.CountryIpService;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -12,8 +11,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Path("/")
 @Singleton
@@ -21,17 +20,6 @@ public class RootController {
 
     @Inject
     CountryIpService countryIpService;
-
-    @PostConstruct
-    public void setup(){
-        CompletableFuture.runAsync( ()-> countryIpService.downloadAll());
-    }
-
-    @GET
-    @Path("load")
-    public void load(){
-        countryIpService.loadMaps();
-    }
 
     @GET
     @Path("manifest")
@@ -50,7 +38,7 @@ public class RootController {
     @GET
     @Path("download")
     public void download() {
-        countryIpService.downloadAll();
+        countryIpService.downloadAllAndLoad();
     }
 
     @GET
@@ -61,9 +49,8 @@ public class RootController {
 
     @GET
     @Path("ip/{country}")
-    public Optional<Object> ip(@PathParam("country") String country) {
+    public Optional<AbstractMap.SimpleEntry> ip(@PathParam("country") String country) {
         return countryIpService.getIp(country);
     }
-
 
 }

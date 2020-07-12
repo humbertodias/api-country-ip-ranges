@@ -41,7 +41,7 @@ public class MainCLI {
     public void run(CountryIpService service) {
 
         if (download) {
-            service.downloadAll();
+            service.downloadAllAndLoad();
         } else {
             service.loadMaps();
         }

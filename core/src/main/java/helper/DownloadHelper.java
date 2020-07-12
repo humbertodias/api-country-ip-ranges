@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class DownloadHelper {
 
@@ -21,7 +24,11 @@ public class DownloadHelper {
         return list != null ? list : new File[0];
     }
 
-    public static void downloadFiles(String ... filesURL)  {
+    public static void downloadFilesAsync(Set<String> filesURL){
+        CompletableFuture.runAsync( ()-> downloadFiles(filesURL));
+    }
+
+    public static void downloadFiles(Set<String> filesURL)  {
         downloadDir.mkdirs();
         for(var fileUrl : filesURL){
             try {

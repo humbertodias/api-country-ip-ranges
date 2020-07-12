@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 @Singleton
@@ -39,7 +40,6 @@ public class CountryIpService {
         return range.stream().anyMatch(s -> s.contains(ip));
     }
 
-
     public Optional<String> getCountry(String ip) {
         if (IPV4.matcher(ip).matches()) {
             var ipv4 = Ipv4.of(ip);
@@ -51,26 +51,41 @@ public class CountryIpService {
 
     }
 
-    public Optional<Object> getIp(String country) {
+    public Optional<AbstractMap.SimpleEntry> getIp(String country) {
         var countryKey = country.toUpperCase();
         if (rangeIpv4.containsKey(countryKey)) {
-            return rangeIpv4.getOrDefault(country.toUpperCase(), new HashSet<>())
+            return rangeIpv4.get(countryKey)
                     .stream().findAny()
-                    .map(r -> r.start()).map(ip -> new HashMap<>().put(countryKey ,ip.toString()) );
+                    .map(r -> r.start()).map(ip -> new AbstractMap.SimpleEntry<>(countryKey, ip.toString()) );
         }
         if (rangeIpv6.containsKey(countryKey)) {
-            return rangeIpv6.getOrDefault(country.toUpperCase(), new HashSet<>())
+            return rangeIpv6.get(countryKey)
                     .stream().findAny()
-                    .map(r -> r.start()).map(ip ->new HashMap<>().put(countryKey ,ip.toString()));
+                    .map(r -> r.start()).map(ip -> new AbstractMap.SimpleEntry<>(countryKey, ip.toString()) );
         }
         return Optional.empty();
     }
 
-    public void downloadAll() {
-        for (var country : countries) {
-            DownloadHelper.downloadFiles(urlV4(country), urlV6(country));
+    public void downloadStartUp(){
+        if(DownloadHelper.listFiles().length == 0){
+            downloadAllAndLoad();
+        } else {
+            System.out.println("Already downloaded");
+            loadMaps();
         }
-        loadMaps();
+    }
+
+    public void downloadAllAndLoad() {
+        CompletableFuture.runAsync( ()-> this.downloadAllCountries()).thenAccept(aVoid -> loadMaps());
+    }
+
+    private void downloadAllCountries(){
+        var urls = new HashSet<String>();
+        for (var country : countries) {
+            urls.add(urlV4(country));
+            urls.add(urlV6(country));
+        }
+        DownloadHelper.downloadFilesAsync(urls);
     }
 
     public String[] files(){
