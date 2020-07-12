@@ -1,6 +1,8 @@
 # Country-ip-ranges
 
-Detect the country based on an IP or obtain an IP informing a country.
+Dynamic detection of country based on an IP or obtain an IP informing a country.
+
+The [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) files are refreshed daily.
 
 eg:
 
@@ -35,6 +37,8 @@ http://localhost:8080/api/openapi-ui
 
 # Ref
 
-* https://www.myip.com/
+* [CIDR - Classless Inter Domain Routing](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
 
-* https://iplocation.com/
+* [myip.com](https://www.myip.com)
+
+* [iplocation](https://iplocation.com)
