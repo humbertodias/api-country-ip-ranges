@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 public class DownloadHelper {
 

@@ -2,7 +2,7 @@
 
 Dynamic detection of country based on an IP or obtain an IP informing a country.
 
-The [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) files are refreshed daily.
+The [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) files are refreshed daily on [www.iwik.org/ipcountry](http://www.iwik.org/ipcountry).
 
 eg:
 

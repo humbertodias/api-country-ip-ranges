@@ -4,10 +4,12 @@ import service.CountryIpService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +29,12 @@ public class RootController {
     public String manifest() throws IOException {
         var input = this.getClass().getResourceAsStream("/META-INF/MANIFEST.MF");
         return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    @GET
+    @Path("myip")
+    public String myip(@Context HttpServletRequest request) {
+        return request.getRemoteAddr();
     }
 
     @GET
@@ -55,6 +63,7 @@ public class RootController {
 
     @GET
     @Path("ip/{country}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Optional<AbstractMap.SimpleEntry> ip(@PathParam("country") String country) {
         return countryIpService.getIp(country);
     }
