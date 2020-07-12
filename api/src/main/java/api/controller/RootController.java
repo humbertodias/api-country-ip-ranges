@@ -21,8 +21,9 @@ public class RootController {
     @Inject
     CountryIpService countryIpService;
 
-    @PostConstruct
-    public void setup(){
+    @GET
+    @Path("load")
+    public void load(){
         countryIpService.loadMaps();
     }
 
