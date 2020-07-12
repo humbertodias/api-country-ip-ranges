@@ -1,1 +1,7 @@
-# api-country-ip-ranges
+# country-ip-ranges
+
+
+https://www.myip.com/
+
+https://iplocation.com/
+

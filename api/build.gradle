@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'war'
+    id "fish.payara.micro-gradle-plugin" version "1.0.4"
+    id "net.nemerosa.versioning" version "2.14.0"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile(project(':core'))
+    implementation 'org.eclipse.microprofile:microprofile:3.3'
+    implementation 'org.microprofile-ext.openapi-ext:openapi-ui:1.1.4'
+}
+
+group = 'com.api.countryip'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '11'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+war {
+    archiveName 'ROOT.war'
+    manifest {
+        attributes(
+                'Built-By'       : System.properties['user.name'],
+                'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Build-Revision' : versioning.info.commit,
+                'Created-By'     : "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+        )
+    }
+}
+
+payaraMicro {
+    deployWar = false
+    useUberJar = true
+}
+
+build.dependsOn microBundle
